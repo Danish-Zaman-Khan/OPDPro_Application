@@ -4,6 +4,7 @@ import sqlite3
 import stat
 import tempfile
 import zipfile
+from contextlib import closing
 from pathlib import Path, PurePosixPath
 
 
@@ -21,7 +22,7 @@ def create_backup(database_path, media_root, destination):
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="opdpro-backup-", dir=destination.parent) as temp_dir:
         snapshot = Path(temp_dir) / "db.sqlite3"
-        with sqlite3.connect(database_path) as source, sqlite3.connect(snapshot) as target:
+        with closing(sqlite3.connect(database_path)) as source, closing(sqlite3.connect(snapshot)) as target:
             source.backup(target)
 
         archive_path = Path(temp_dir) / "backup.zip"
@@ -39,12 +40,12 @@ def create_backup(database_path, media_root, destination):
                             raise ValueError(f"Cannot back up a symbolic link: {file_path}")
                         archive_name = PurePosixPath("media", *file_path.relative_to(media_root).parts)
                         archive.write(file_path, archive_name.as_posix())
-            os.replace(archive_path, destination)
+        os.replace(archive_path, destination)
     return destination
 
 
 def _validate_database(database_path):
-    with sqlite3.connect(database_path) as database:
+    with closing(sqlite3.connect(database_path)) as database:
         result = database.execute("PRAGMA integrity_check").fetchone()
         tables = {
             row[0]

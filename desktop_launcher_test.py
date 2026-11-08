@@ -2,6 +2,7 @@ import sqlite3
 import tempfile
 import unittest
 import zipfile
+from contextlib import closing
 from pathlib import Path
 
 from local_data import create_backup, restore_backup
@@ -23,23 +24,25 @@ class LocalDataBackupTests(unittest.TestCase):
 
     @staticmethod
     def _create_database(path, clinic_name):
-        with sqlite3.connect(path) as database:
-            database.execute("CREATE TABLE django_migrations (id INTEGER)")
-            database.execute("CREATE TABLE usermanagement_customuser (id INTEGER)")
-            database.execute("CREATE TABLE clinic (name TEXT)")
-            database.execute("INSERT INTO clinic VALUES (?)", [clinic_name])
+        with closing(sqlite3.connect(path)) as database:
+            with database:
+                database.execute("CREATE TABLE django_migrations (id INTEGER)")
+                database.execute("CREATE TABLE usermanagement_customuser (id INTEGER)")
+                database.execute("CREATE TABLE clinic (name TEXT)")
+                database.execute("INSERT INTO clinic VALUES (?)", [clinic_name])
 
     def test_backup_restores_database_and_uploaded_files(self):
         backup = self.root / "backup.zip"
         create_backup(self.database, self.media, backup)
 
-        with sqlite3.connect(self.database) as database:
-            database.execute("UPDATE clinic SET name = 'after'")
+        with closing(sqlite3.connect(self.database)) as database:
+            with database:
+                database.execute("UPDATE clinic SET name = 'after'")
         (self.media / "reports" / "result.txt").write_text("changed report", encoding="utf-8")
 
         restore_backup(backup, self.database, self.media)
 
-        with sqlite3.connect(self.database) as database:
+        with closing(sqlite3.connect(self.database)) as database:
             clinic_name = database.execute("SELECT name FROM clinic").fetchone()[0]
         self.assertEqual(clinic_name, "before")
         self.assertEqual(
@@ -56,7 +59,7 @@ class LocalDataBackupTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             restore_backup(backup, self.database, self.media)
 
-        with sqlite3.connect(self.database) as database:
+        with closing(sqlite3.connect(self.database)) as database:
             clinic_name = database.execute("SELECT name FROM clinic").fetchone()[0]
         self.assertEqual(clinic_name, "before")
         self.assertFalse((self.root / "outside.txt").exists())
