@@ -31,4 +31,4 @@ Name: "{autoprograms}\OPDPro"; Filename: "{app}\OPDPro.exe"; WorkingDir: "{app}"
 Name: "{autodesktop}\OPDPro"; Filename: "{app}\OPDPro.exe"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\OPDPro.exe"; Description: "Launch OPDPro"; WorkingDir: "{app}"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\OPDPro.exe"; Description: "Open OPDPro"; WorkingDir: "{app}"; Flags: postinstall nowait skipifsilent

@@ -76,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'user_notifications.context_processors.notifications',
                 'user_notifications.context_processors.unread_notifications_count',
+                'usermanagement.context_processors.desktop_context',
             ],
         },
     },

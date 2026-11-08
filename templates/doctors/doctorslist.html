@@ -27,16 +27,17 @@
             <div style="font-size:.75rem; color:var(--text-muted);">{{ doctor.staff_role|default:"Staff"|title }}</div>
           </div>
         </div>
+        <div><span class="status-badge {% if doctor.is_active %}status-completed{% else %}status-cancelled{% endif %}">{% if doctor.is_active %}Active{% else %}Inactive{% endif %}</span></div>
         <div style="font-size:.82rem; color:var(--text-muted);">
           <div class="mb-1"><i class="bi bi-envelope me-2"></i>{{ doctor.email }}</div>
           <div><i class="bi bi-telephone me-2"></i>{{ doctor.mobile_number|default:"—" }}</div>
         </div>
         <div style="display:flex; gap:.5rem; margin-top:.25rem;">
           <a href="{% url 'doctors:doctor_detail' doctor.pk %}" class="btn btn-sm btn-primary-opd flex-fill text-center" style="font-size:.78rem;">View Profile</a>
-          {% if request.user.pk == doctor.pk or request.user.is_staff %}
+          {% if request.user.pk == doctor.pk or request.user.is_staff and request.user.staff_role == 'admin' %}
           <a href="{% url 'doctors:doctor_edit' doctor.pk %}" class="btn btn-sm btn-outline-opd" style="font-size:.78rem;"><i class="bi bi-pencil"></i></a>
           {% endif %}
-          {% if request.user.pk != doctor.pk %}
+          {% if request.user.pk != doctor.pk and request.user.is_staff and request.user.staff_role == 'admin' %}
           <a href="{% url 'user_notifications:send_message' doctor.pk %}" class="btn btn-sm" style="font-size:.78rem; background:#f0f9ff; color:#0369a1; border-radius:8px; padding:.35rem .6rem; border:none;"><i class="bi bi-chat"></i></a>
           {% endif %}
         </div>

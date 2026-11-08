@@ -14,7 +14,8 @@
   <link rel="stylesheet" href="{% static 'css/pwa.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
-<body class="auth-page">
+<body class="auth-page{% if desktop_mode %} desktop-app{% endif %}">
+  {% include "base/_desktop_controls.html" %}
   <main class="auth-layout">
     <section class="auth-intro" aria-label="About OPDPro">
       <a class="auth-brand" href="{% url 'usermanagement:login' %}">

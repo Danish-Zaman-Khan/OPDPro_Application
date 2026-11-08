@@ -33,6 +33,47 @@
 
 * { box-sizing: border-box; }
 
+body.desktop-app { --desktop-bar-height: 46px; }
+.desktop-app-bar {
+  position: fixed;
+  z-index: 1060;
+  inset: 0 0 auto;
+  display: flex;
+  height: var(--desktop-bar-height, 0px);
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0 1.15rem;
+  border-bottom: 1px solid #244e38;
+  background: #155b3b;
+  color: #fff;
+}
+.desktop-app-name { display: inline-flex; align-items: center; gap: .55rem; font-size: .96rem; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
+.desktop-app-name i { color: #c9e6d2; font-size: 1.05rem; }
+.desktop-app-status { overflow: hidden; color: #d3e6d9; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+.desktop-app-actions { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
+.desktop-action { display: inline-flex; min-height: 32px; align-items: center; gap: .4rem; padding: .3rem .6rem; border: 1px solid rgb(255 255 255 / 22%); border-radius: 7px; background: rgb(255 255 255 / 8%); color: #fff; font: inherit; font-size: .77rem; white-space: nowrap; }
+.desktop-action:hover:not(:disabled) { background: rgb(255 255 255 / 18%); }
+.desktop-action:disabled { cursor: wait; opacity: .6; }
+.desktop-setup-dialog { width: min(460px, calc(100% - 32px)); max-height: min(90vh, 760px); overflow: auto; padding: 1.8rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--text); box-shadow: 0 20px 70px rgb(15 31 21 / 30%); }
+.desktop-setup-dialog::backdrop { background: rgb(15 31 21 / 58%); backdrop-filter: blur(2px); }
+.desktop-setup-dialog form { display: grid; }
+.desktop-setup-mark { display: grid; width: 42px; height: 42px; margin-bottom: .85rem; place-items: center; border-radius: 12px; background: var(--primary-soft); color: var(--primary); font-size: 1.2rem; }
+.desktop-setup-dialog h2 { margin: 0; font-size: 1.35rem; }
+.desktop-setup-dialog p { margin: .35rem 0 1rem; color: var(--text-muted); font-size: .88rem; }
+.desktop-setup-dialog label { margin: .45rem 0 .25rem; font-size: .8rem; font-weight: 650; }
+.desktop-setup-dialog input { width: 100%; min-height: 40px; padding: .5rem .65rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; }
+.desktop-setup-dialog input:focus { border-color: var(--primary); outline: 3px solid rgb(23 97 63 / 15%); }
+.desktop-setup-dialog .desktop-setup-error { margin: .75rem 0 0; color: #b42318; }
+.desktop-setup-submit { min-height: 42px; margin-top: 1rem; border: 0; border-radius: 8px; background: var(--primary); color: #fff; font: inherit; font-weight: 700; }
+.desktop-setup-submit:hover { background: var(--primary-hover); }
+.desktop-toast { position: fixed; z-index: 1200; right: 1rem; bottom: 1rem; max-width: min(440px, calc(100vw - 2rem)); padding: .8rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); box-shadow: 0 8px 30px rgb(15 31 21 / 18%); opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .16s ease, transform .16s ease; }
+.desktop-toast.is-visible { opacity: 1; transform: translateY(0); }
+.desktop-toast.is-error { border-color: #e6aaa6; color: #9f2118; }
+body.desktop-app .clinic-topbar { top: var(--desktop-bar-height); }
+body.desktop-app .clinic-sidebar { top: calc(var(--desktop-bar-height) + var(--topbar-height)); }
+body.desktop-app .clinic-main { padding-top: calc(var(--desktop-bar-height) + var(--topbar-height) + 1.7rem); }
+body.desktop-app .auth-layout { padding-top: var(--desktop-bar-height); }
+
 body {
   min-height: 100vh;
   margin: 0;

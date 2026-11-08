@@ -16,7 +16,8 @@
   <style>{% block extra_styles %}{% endblock %}</style>
   {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="{% if desktop_mode %}desktop-app{% endif %}">
+  {% include "base/_desktop_controls.html" %}
   <header class="clinic-topbar">
     <button class="icon-button mobile-menu-button" id="sidebarToggle" type="button" aria-label="Open navigation" aria-controls="sidebar">
       <i class="bi bi-list" aria-hidden="true"></i>

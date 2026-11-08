@@ -9,10 +9,10 @@ DATA_DIRS = [
     (ROOT / "prescriptions" / "fixtures", "prescriptions/fixtures"),
 ]
 datas = [(str(source), target) for source, target in DATA_DIRS if source.exists()]
-for package in ("django", "rest_framework", "rest_framework_simplejwt", "corsheaders", "widget_tweaks"):
+for package in ("django", "rest_framework", "rest_framework_simplejwt", "corsheaders", "widget_tweaks", "webview"):
     datas.extend(collect_data_files(package))
 
-for package in ("Django", "djangorestframework", "djangorestframework-simplejwt", "django-cors-headers", "django-widget-tweaks", "python-dotenv", "Pillow"):
+for package in ("Django", "djangorestframework", "djangorestframework-simplejwt", "django-cors-headers", "django-widget-tweaks", "python-dotenv", "Pillow", "pywebview"):
     datas.extend(copy_metadata(package))
 
 APP_MODULES = (
@@ -28,7 +28,7 @@ APP_MODULES = (
     "usermanagement",
 )
 hiddenimports = list(collect_submodules("django"))
-for module in (*APP_MODULES, "rest_framework", "rest_framework_simplejwt", "corsheaders", "widget_tweaks", "PIL"):
+for module in (*APP_MODULES, "rest_framework", "rest_framework_simplejwt", "corsheaders", "widget_tweaks", "PIL", "webview"):
     hiddenimports.extend(collect_submodules(module))
 
 analysis = Analysis(

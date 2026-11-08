@@ -1,0 +1,34 @@
+{% load static %}
+{% if desktop_mode %}
+<div class="desktop-app-bar" role="toolbar" aria-label="OPDPro desktop controls">
+  <span class="desktop-app-name"><i class="bi bi-hospital-fill" aria-hidden="true"></i> OPDPro</span>
+  <span class="desktop-app-status" data-desktop-status role="status">Preparing clinic…</span>
+  <div class="desktop-app-actions">
+    <button class="desktop-action" type="button" data-desktop-action="backup"><i class="bi bi-cloud-arrow-down" aria-hidden="true"></i><span>Back up</span></button>
+    <button class="desktop-action" type="button" data-desktop-action="restore"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span>Restore</span></button>
+    <button class="desktop-action" type="button" data-desktop-action="data"><i class="bi bi-folder2-open" aria-hidden="true"></i><span>Clinic data</span></button>
+    <button class="desktop-action" type="button" data-desktop-action="setup" hidden><i class="bi bi-person-gear" aria-hidden="true"></i><span>Set up administrator</span></button>
+  </div>
+</div>
+<dialog class="desktop-setup-dialog" data-desktop-setup aria-labelledby="desktopSetupTitle">
+  <form data-desktop-setup-form>
+    <div class="desktop-setup-mark"><i class="bi bi-hospital-fill" aria-hidden="true"></i></div>
+    <h2 id="desktopSetupTitle">Set up your clinic</h2>
+    <p>Create the administrator account you’ll use to sign in and manage clinic staff.</p>
+    <label for="desktopFirstName">First name</label>
+    <input id="desktopFirstName" name="first_name" autocomplete="given-name" required maxlength="30">
+    <label for="desktopLastName">Last name</label>
+    <input id="desktopLastName" name="last_name" autocomplete="family-name" required maxlength="30">
+    <label for="desktopEmail">Email</label>
+    <input id="desktopEmail" name="email" type="email" autocomplete="email" required maxlength="254">
+    <label for="desktopPassword">Password</label>
+    <input id="desktopPassword" name="password" type="password" autocomplete="new-password" minlength="12" required>
+    <label for="desktopPasswordConfirm">Confirm password</label>
+    <input id="desktopPasswordConfirm" name="confirm_password" type="password" autocomplete="new-password" minlength="12" required>
+    <p class="desktop-setup-error" data-desktop-setup-error role="alert" hidden></p>
+    <button class="desktop-setup-submit" type="submit">Create administrator</button>
+  </form>
+</dialog>
+<div class="desktop-toast" data-desktop-toast role="status" aria-live="polite"></div>
+<script src="{% static 'js/desktop-app.js' %}" defer></script>
+{% endif %}

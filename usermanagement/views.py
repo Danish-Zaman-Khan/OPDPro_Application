@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, login, authenticate
 from django.contrib import messages
 from django.contrib.messages import get_messages
+from django.db.models import Count, Q
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -98,18 +99,18 @@ def dashboard(request):
         date__lte=seven_days_later,
     ).exclude(status='Completed').order_by('date', 'time')
 
-    total_user_appointments = Appointment.objects.filter(doctor=request.user).count()
-    completed_today = Appointment.objects.filter(doctor=request.user, date=today, status='Completed').count()
-    pending_count = Appointment.objects.filter(doctor=request.user, status='Pending').count()
+    appointment_counts = Appointment.objects.filter(doctor=request.user).aggregate(
+        completed_today=Count('pk', filter=Q(date=today, status='Completed')),
+        pending=Count('pk', filter=Q(status='Pending')),
+    )
 
     context = {
         'current_day': today,
         'total_patients': Patient.objects.count(),
-        'total_appointments': total_user_appointments,
-        'todays_appointments': todays_appointments,
-        'upcoming_appointments': upcoming_appointments,
-        'completed_today': completed_today,
-        'pending_count': pending_count,
+        'todays_appointments': todays_appointments.select_related('patient'),
+        'upcoming_appointments': upcoming_appointments.select_related('patient'),
+        'completed_today': appointment_counts['completed_today'],
+        'pending_count': appointment_counts['pending'],
     }
     return render(request, 'usermanagement/userdashboard.html', context)
 

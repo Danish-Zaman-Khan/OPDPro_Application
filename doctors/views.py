@@ -8,7 +8,7 @@ from .forms import DoctorEditForm
 
 def doctors_list(request):
     query = request.GET.get('q', '').strip()
-    doctors = CustomUser.objects.filter(is_active=True)
+    doctors = CustomUser.objects.all()
     if query:
         doctors = doctors.filter(
             Q(first_name__icontains=query) |
@@ -25,7 +25,8 @@ def doctor_detail(request, pk):
 
 @login_required
 def doctor_edit(request, pk):
-    if request.user.pk != pk and not request.user.is_staff:
+    is_admin = request.user.is_staff and request.user.staff_role == 'admin'
+    if request.user.pk != pk and not is_admin:
         return HttpResponseForbidden("You are not allowed to edit this profile.")
     doctor = get_object_or_404(CustomUser, pk=pk)
     if request.method == 'POST':

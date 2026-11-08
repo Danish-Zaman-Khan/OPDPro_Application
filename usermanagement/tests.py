@@ -1,14 +1,20 @@
 from unittest import skipUnless
+from datetime import date, timedelta
 
 from django.conf import settings
 from django.contrib.messages import constants
 from django.contrib.messages.storage.cookie import CookieStorage
+from django.db import connection
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from rest_framework.test import APIClient
 
+from appointment.models import Appointment
+from patients.models import Patient
 from usermanagement.admin import ClinicUserCreationForm
 from usermanagement.models import CustomUser
+from user_notifications.models import Notification
 
 
 class ClinicStaffCreationTests(TestCase):
@@ -67,6 +73,23 @@ class ClinicPageRenderTests(TestCase):
         self.assertContains(response, 'Need an account? Ask your clinic administrator.')
         self.assertNotContains(response, 'Create account')
 
+    @override_settings(OPD_LOCAL_DESKTOP=True)
+    def test_desktop_login_page_shows_integrated_application_controls(self):
+        response = self.client.get('/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'desktop-app-bar')
+        self.assertContains(response, 'Back up')
+        self.assertContains(response, 'Restore')
+        self.assertContains(response, 'desktop-app.js')
+
+    @override_settings(OPD_LOCAL_DESKTOP=False)
+    def test_web_login_page_does_not_show_desktop_application_controls(self):
+        response = self.client.get('/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'desktop-app-bar')
+
     def test_dashboard_renders_the_local_clinic_navigation(self):
         self.client.force_login(self.user)
 
@@ -109,6 +132,119 @@ class ClinicPageRenderTests(TestCase):
         response = self.client.get('/dashboard/')
 
         self.assertRedirects(response, '/?next=/dashboard/')
+
+    def test_dashboard_query_count_does_not_grow_with_appointments(self):
+        self.client.force_login(self.user)
+        with CaptureQueriesContext(connection) as empty_queries:
+            response = self.client.get('/dashboard/')
+        self.assertEqual(response.status_code, 200)
+
+        for index in range(3):
+            patient = Patient.objects.create(
+                first_name=f'Queue{index}',
+                last_name='Patient',
+                date_of_birth=date(1990, 1, 1),
+                gender='M',
+            )
+            Appointment.objects.create(
+                patient=patient,
+                doctor=self.user,
+                date=date.today() + timedelta(days=index),
+                time=f'09:0{index}',
+                status='Pending',
+            )
+
+        with CaptureQueriesContext(connection) as appointment_queries:
+            response = self.client.get('/dashboard/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            len(appointment_queries),
+            len(empty_queries),
+            'Dashboard queries should not increase once appointments are rendered.',
+        )
+
+    def test_staff_directory_shows_availability_without_chat_controls(self):
+        inactive_staff = CustomUser.objects.create_user(
+            email='inactive@example.test',
+            password='Safe-clinic-password-123!',
+            first_name='Inactive',
+            last_name='Staff',
+            staff_role='nurse',
+            is_active=False,
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get('/doctors/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Active')
+        self.assertContains(response, 'Inactive')
+        self.assertContains(response, 'inactive@example.test')
+        self.assertNotContains(response, 'Message')
+        self.assertNotContains(response, 'bi-chat')
+        self.assertNotContains(response, 'Admin tools')
+        self.assertFalse(inactive_staff.is_active)
+
+    def test_only_administrators_can_start_or_reply_to_messages(self):
+        other_staff = CustomUser.objects.create_user(
+            email='other-staff@example.test',
+            password='Safe-clinic-password-123!',
+            first_name='Other',
+            last_name='Staff',
+            staff_role='nurse',
+        )
+        self.user.is_staff = True
+        self.user.save(update_fields=['is_staff'])
+        self.client.force_login(self.user)
+
+        response = self.client.get(f'/notifications/send/to/{other_staff.pk}/')
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Notification.objects.count(), 0)
+        response = self.client.post(
+            f'/notifications/send/to/{other_staff.pk}/',
+            {'message': 'Unauthorized message.'},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Notification.objects.count(), 0)
+
+        response = self.client.get(f'/doctors/{other_staff.pk}/edit/')
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get('/doctors/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'bi-chat')
+
+        administrator = CustomUser.objects.create_superuser(
+            email='clinic-admin@example.test',
+            password='Safe-clinic-password-123!',
+            first_name='Clinic',
+            last_name='Administrator',
+            staff_role='admin',
+        )
+        self.client.force_login(administrator)
+
+        response = self.client.get(f'/notifications/send/to/{other_staff.pk}/')
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get('/doctors/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'bi-chat')
+
+        response = self.client.post(
+            f'/notifications/send/to/{other_staff.pk}/',
+            {'message': 'Please confirm your clinic schedule.'},
+        )
+
+        self.assertRedirects(response, '/notifications/')
+        self.assertEqual(Notification.objects.get().user, other_staff)
+
+        self.client.force_login(other_staff)
+        inbox = self.client.get('/notifications/')
+        self.assertContains(inbox, 'Please confirm your clinic schedule.')
+        detail = self.client.get(f'/notifications/{Notification.objects.get().pk}/')
+        self.assertEqual(detail.status_code, 200)
+        self.assertNotContains(detail, 'Reply')
 
     @skipUnless(
         settings.OPD_LOCAL_DESKTOP or settings.DEBUG,

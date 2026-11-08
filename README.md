@@ -1,6 +1,6 @@
 # OPDPro
 
-OPDPro is a local outpatient-practice management app for a **single clinic on one Windows computer**. The Windows desktop launcher starts a local-only clinic server, opens the app in the browser, and stores the clinic database and uploaded reports in the signed-in user's local application data folder. It includes patient records, appointments, doctor/staff profiles, prescriptions, invoice and payment tracking, and lab-report upload/review.
+OPDPro is a local outpatient-practice management app for a **single clinic on one Windows computer**. The Windows desktop app displays the clinic and its setup, backup, and restore controls together in one native application window. It runs a local-only clinic server and stores the clinic database and uploaded reports in the signed-in user's local application data folder. It includes patient records, appointments, doctor/staff profiles, prescriptions, invoice and payment tracking, and lab-report upload/review.
 
 The project is India-oriented: it uses the `Asia/Kolkata` timezone, Indian rupee amounts, Indian payment modes, optional GSTIN and registration details, and an Indian medicine catalogue. Doctors and dentists can use the general OPD workflow and enter a specialization (for example, `Dentistry`) in their profile.
 
@@ -13,7 +13,7 @@ The project is India-oriented: it uses the `Asia/Kolkata` timezone, Indian rupee
 
 ## Start here
 
-For clinic staff, use the Windows release: double-click `OPDPro-Setup.exe` and follow the installer when available; the ZIP also includes a script-based installer. Open OPDPro from its shortcut. The launcher starts the local service but waits for staff to select **Open OPDPro** before opening the clinic in a browser. Create the clinic administrator on first run. See [Local deployment and clinic setup](docs/LOCAL-DEPLOYMENT.md) for staff sign-in, secure backups and restore, data locations, uninstalling without deleting records, manual developer setup, and troubleshooting.
+For clinic staff, use the Windows release: double-click `OPDPro-Setup.exe` and follow the installer when available; the ZIP also includes a script-based installer. Open OPDPro from its shortcut. Create the clinic administrator on first run, then sign in within the same application window. See [Local deployment and clinic setup](docs/LOCAL-DEPLOYMENT.md) for staff sign-in, secure backups and restore, data locations, uninstalling without deleting records, manual developer setup, and troubleshooting.
 
 ## Main areas
 

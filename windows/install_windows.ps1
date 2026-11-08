@@ -45,5 +45,5 @@ New-ItemProperty -Path $uninstallKey -Name "InstallLocation" -Value $installDire
 New-ItemProperty -Path $uninstallKey -Name "UninstallString" -Value "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$installDirectory\uninstall_windows.ps1`"" -PropertyType String -Force | Out-Null
 
 Write-Host "OPDPro is installed. Use the desktop shortcut or Windows Start menu."
-Write-Host "Double-clicking OPDPro opens its launcher. Select Open OPDPro to open the clinic."
+Write-Host "OPDPro opens as one application window with the clinic and backup tools together."
 Write-Host "Clinic data is stored separately under %LOCALAPPDATA%\OPDPro and is not removed when the app is uninstalled."

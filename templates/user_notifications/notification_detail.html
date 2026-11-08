@@ -19,7 +19,7 @@
       <div style="font-size:.9rem; line-height:1.75; white-space:pre-line; color:var(--text);">{{ notification.message }}</div>
       <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid var(--border);">
         <a href="{% url 'user_notifications:list' %}" class="btn-outline-opd"><i class="bi bi-arrow-left me-1"></i>Back</a>
-        {% if notification.sender %}
+        {% if notification.sender and user.is_staff and user.staff_role == 'admin' %}
         <a href="{% url 'user_notifications:send_message' notification.sender.pk %}" class="btn btn-primary-opd"><i class="bi bi-reply me-1"></i>Reply</a>
         {% endif %}
       </div>

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import HttpResponseForbidden
 from django.urls import reverse
 from .models import Notification
 from usermanagement.models import CustomUser
@@ -20,6 +21,9 @@ def unread_notifications(request):
 # Unified send_message view for new message and reply
 @login_required
 def send_message(request, recipient_pk=None, notification_pk=None):
+    if not (request.user.is_staff and request.user.staff_role == 'admin'):
+        return HttpResponseForbidden("Only clinic administrators can send or reply to messages.")
+
     # Determine recipient
     if recipient_pk:
         recipient = get_object_or_404(CustomUser, pk=recipient_pk)
