@@ -99,7 +99,7 @@ python manage.py createsuperuser
 
 The medicine fixture is optional; it loads the included starter catalogue and can be skipped. Create a separate account for each person who will use the application. Do not share the administrator login.
 
-For clinic staff accounts, sign in with the administrator account and use **Admin tools** at `/admin/` to manage accounts and clinic configuration. Only accounts with Django staff access can use Admin tools; a role label alone does not grant access. Admin pages include a **Return to OPDPro clinic** link. Use the role that matches each person's duties. A doctor can enter their specialization and professional registration number from their profile page (`/profile/update/`) or from the doctor profile edit page. The specialization is free text and appears on the doctor profile and printed prescriptions.
+For clinic staff accounts, sign in with the administrator account and use **Admin tools** at `/admin/` to manage accounts and clinic configuration. The **Admin tools** and **Clinic settings** links are shown only to accounts with the Admin role and Django staff access. A role label alone does not grant access. Admin pages include a **Return to OPDPro clinic** link. Use the role that matches each person's duties. A doctor can enter their specialization and professional registration number from their profile page (`/profile/update/`) or from the doctor profile edit page. The specialization is free text and appears on the doctor profile and printed prescriptions.
 
 The installed app does not offer public staff registration. The clinic administrator is responsible for adding and disabling staff accounts; role labels are not a substitute for a reviewed authorization policy.
 

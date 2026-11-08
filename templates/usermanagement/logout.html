@@ -3,9 +3,14 @@
 {% block title %}Signed out · OPDPro{% endblock %}
 
 {% block content %}
-<h2>You are signed out</h2>
-<p class="sub">Your OPDPro session has ended. Close this browser if you are using a shared computer.</p>
-<a class="btn-auth d-block text-center text-decoration-none" href="{% url 'usermanagement:login' %}">
-  <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Return to sign in
-</a>
+<section class="logout-state" role="status" aria-labelledby="logoutTitle">
+  <span class="logout-state-icon" aria-hidden="true"><i class="bi bi-check2"></i></span>
+  <p class="logout-eyebrow">Secure sign out</p>
+  <h2 id="logoutTitle">You are signed out</h2>
+  <p class="sub">Your OPDPro session has ended. You can safely close this browser window.</p>
+  <a class="btn-auth text-decoration-none" href="{% url 'usermanagement:login' %}">
+    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>Return to sign in
+  </a>
+  <p class="logout-security-note"><i class="bi bi-shield-check" aria-hidden="true"></i>Your clinic records remain saved on this computer.</p>
+</section>
 {% endblock %}

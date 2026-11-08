@@ -78,6 +78,33 @@ class ClinicPageRenderTests(TestCase):
         self.assertNotContains(response, 'Admin tools')
         self.assertRegex(response.content.decode(), r'<style>\s*\.dashboard \{')
 
+    def test_staff_without_admin_role_does_not_see_admin_actions(self):
+        self.user.is_staff = True
+        self.user.save(update_fields=['is_staff'])
+        self.client.force_login(self.user)
+
+        response = self.client.get('/dashboard/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Admin tools')
+        self.assertNotContains(response, 'Clinic settings')
+
+    def test_administrator_sees_admin_actions(self):
+        administrator = CustomUser.objects.create_superuser(
+            email='clinic-admin@example.test',
+            password='Safe-clinic-password-123!',
+            first_name='Clinic',
+            last_name='Administrator',
+            staff_role='admin',
+        )
+        self.client.force_login(administrator)
+
+        response = self.client.get('/dashboard/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Admin tools')
+        self.assertContains(response, 'Clinic settings')
+
     def test_dashboard_redirects_unauthenticated_users_to_login(self):
         response = self.client.get('/dashboard/')
 
@@ -188,6 +215,8 @@ class ClinicPageRenderTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'You are signed out')
         self.assertContains(response, 'Return to sign in')
+        self.assertContains(response, 'Secure sign out')
+        self.assertContains(response, 'Your clinic records remain saved on this computer.')
 
     def test_admin_tools_has_a_return_to_clinic_link(self):
         administrator = CustomUser.objects.create_superuser(

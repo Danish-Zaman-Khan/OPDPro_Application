@@ -42,7 +42,7 @@
           <span>{{ request.user.get_staff_role_display|default:request.user.staff_role|default:"Staff"|title }}</span>
         </li>
         <li><a class="dropdown-item" href="{% url 'usermanagement:update_profile' %}"><i class="bi bi-person"></i> My profile</a></li>
-        {% if request.user.is_staff or request.user.staff_role == 'admin' %}
+        {% if request.user.is_staff and request.user.staff_role == 'admin' %}
         <li><a class="dropdown-item" href="{% url 'billing:fee_settings' %}"><i class="bi bi-sliders"></i> Clinic settings</a></li>
         {% endif %}
         <li><hr class="dropdown-divider"></li>
@@ -84,7 +84,7 @@
 
     <div class="sidebar-footer">
       <span class="local-status"><i class="bi bi-shield-check" aria-hidden="true"></i> Saved on this computer</span>
-      {% if request.user.is_staff %}
+      {% if request.user.is_staff and request.user.staff_role == 'admin' %}
       <a class="admin-link" href="{% url 'admin:index' %}"><i class="bi bi-gear" aria-hidden="true"></i> Admin tools</a>
       {% endif %}
     </div>
