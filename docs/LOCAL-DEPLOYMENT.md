@@ -157,6 +157,7 @@ Doctors and dentists share the existing general OPD workflow: patient details, a
 | Problem | Check |
 |---|---|
 | Startup says `Set SECRET_KEY...` | Confirm `.env` is in the repository root, not in `.venv` or another folder, and that `SECRET_KEY` has a generated value. |
+| Desktop startup says `No fixture named 'drug_master' found` | Install the latest Windows release, which loads the bundled medicine catalogue from the application package. Existing clinic records remain in `%LOCALAPPDATA%\OPDPro`. |
 | `No module named ...` | Activate the project's `.venv` and run `python -m pip install -r requirements.txt`. |
 | Login page or admin reports a missing database table | Stop the server and run `python manage.py migrate`. |
 | Browser cannot connect | Confirm the server terminal has no error and use `http://127.0.0.1:8000/` on the same computer. |

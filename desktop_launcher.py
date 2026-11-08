@@ -11,6 +11,7 @@ from local_data import create_backup, restore_backup
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "opdmanagement.settings")
+BUNDLE_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
 APP_DATA = Path(
     os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")
 ) / "OPDPro"
@@ -245,7 +246,10 @@ def main():
 
             DrugMaster = apps.get_model("prescriptions", "DrugMaster")
             if not DrugMaster.objects.exists():
-                call_command("loaddata", "prescriptions/fixtures/drug_master.json", verbosity=0)
+                drug_fixture = BUNDLE_ROOT / "prescriptions" / "fixtures" / "drug_master.json"
+                if not drug_fixture.is_file():
+                    raise FileNotFoundError(f"The bundled medicine catalogue was not found: {drug_fixture}")
+                call_command("loaddata", str(drug_fixture), verbosity=0)
 
             CustomUser = apps.get_model("usermanagement", "CustomUser")
             has_admin = CustomUser.objects.filter(is_superuser=True).exists()
