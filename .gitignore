@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+db.sqlite3
+db.sqlite3-shm
+db.sqlite3-wal
+media/
+staticfiles/
+android/.gradle/
+android/**/build/
+android/local.properties
+windows/.venv-build/
+windows/build/
+windows/dist/

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#113d31">
+  <title>Offline · OPDPro</title>
+  <style>
+    :root { color-scheme:light; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:#f5f8f5; color:#173c30; }
+    * { box-sizing:border-box; }
+    body { min-height:100vh; margin:0; display:grid; place-items:center; padding:1.25rem; }
+    main { width:min(100%,420px); padding:2rem; border:1px solid #dce7df; border-radius:12px; background:#fff; box-shadow:0 12px 30px rgba(23,60,48,.09); text-align:center; }
+    img { width:64px; height:64px; margin-bottom:1rem; }
+    h1 { margin:0 0 .5rem; font:600 1.3rem/1.2 system-ui,sans-serif; }
+    p { margin:0 0 1.25rem; color:#60756b; font-size:.92rem; line-height:1.55; }
+    button { min-height:44px; padding:.65rem 1rem; border:0; border-radius:7px; background:#1a6b3c; color:#fff; font:600 .9rem system-ui,sans-serif; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="/static/pwa/icon-192.png" alt="">
+    <h1>You’re offline</h1>
+    <p>OPDPro needs a connection to load clinic records. Reconnect and try again.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </main>
+</body>
+</html>

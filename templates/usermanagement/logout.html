@@ -1,0 +1,11 @@
+{% extends "base/base_auth.html" %}
+
+{% block title %}Signed out · OPDPro{% endblock %}
+
+{% block content %}
+<h2>You are signed out</h2>
+<p class="sub">Your OPDPro session has ended. Close this browser if you are using a shared computer.</p>
+<a class="btn-auth d-block text-center text-decoration-none" href="{% url 'usermanagement:login' %}">
+  <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Return to sign in
+</a>
+{% endblock %}

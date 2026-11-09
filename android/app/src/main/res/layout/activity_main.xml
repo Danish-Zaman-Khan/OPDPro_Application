@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAF9">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/appWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#F8FAF9"
+            android:overScrollMode="never" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <ProgressBar
+        android:id="@+id/pageProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_gravity="top"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressTint="#D19552"
+        android:progressBackgroundTint="#E4F1E9"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/connectionError"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F8FAF9"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Can't reach OPDPro"
+            android:textColor="#173B30"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Check that Django is running. On the emulator, it should be available at 10.0.2.2:8000."
+            android:textColor="#60766B"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#176B49"
+            android:minWidth="144dp"
+            android:text="Try again"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,31 @@
+{% extends "base/base.html" %}
+{% block title %}Doctor Notes · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Doctor's Notes</h1>
+  <p>{{ appointment.patient.first_name }} {{ appointment.patient.last_name }} — {{ appointment.date|date:"d M Y" }} at {{ appointment.time|time:"H:i" }}</p>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="opd-card">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Notes</label>
+          <textarea id="id_doctor_notes" name="doctor_notes" rows="8" class="form-control" style="line-height:1.7;" placeholder="Enter diagnosis, prescriptions, follow-up instructions…">{{ form.doctor_notes.value|default_if_none:'' }}</textarea>
+          {% if form.doctor_notes.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.doctor_notes.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button type="submit" class="btn btn-primary-opd px-4"><i class="bi bi-save me-2"></i>Save Notes</button>
+          {% if appointment.status != "Completed" %}
+          <button type="submit" name="mark_complete" value="1" class="btn" style="background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; border-radius:8px; padding:.5rem 1.25rem; font-size:.875rem;" formaction="{% url 'appointment:mark_completed' appointment.pk %}">
+            <i class="bi bi-check-circle me-2"></i>Save & Mark Complete
+          </button>
+          {% endif %}
+          <a href="{% url 'appointment:appointment_detail' appointment.pk %}" class="btn-outline-opd px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base/base.html" %}
+{% block title %}Message · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Message</h1>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="opd-card">
+      <div class="d-flex align-items-center gap-3 mb-4 pb-3" style="border-bottom:1px solid var(--border);">
+        <div class="rounded-circle d-flex align-items-center justify-content-center fw-700" style="width:48px;height:48px;background:var(--primary);color:#fff;font-size:.9rem;">
+          {% if notification.sender %}{{ notification.sender.first_name|slice:":1" }}{{ notification.sender.last_name|slice:":1" }}{% else %}?{% endif %}
+        </div>
+        <div>
+          <div style="font-weight:600; font-size:.95rem;">{{ notification.sender.first_name|default:"System" }} {{ notification.sender.last_name|default:"" }}</div>
+          <div style="font-size:.75rem; color:var(--text-muted);">{{ notification.created_at|date:"d M Y, H:i" }}</div>
+        </div>
+      </div>
+      <div style="font-size:.9rem; line-height:1.75; white-space:pre-line; color:var(--text);">{{ notification.message }}</div>
+      <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid var(--border);">
+        <a href="{% url 'user_notifications:list' %}" class="btn-outline-opd"><i class="bi bi-arrow-left me-1"></i>Back</a>
+        {% if notification.sender %}
+        <a href="{% url 'user_notifications:send_message' notification.sender.pk %}" class="btn btn-primary-opd"><i class="bi bi-reply me-1"></i>Reply</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

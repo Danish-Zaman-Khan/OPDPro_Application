@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ invoice.invoice_number }} · {{ cfg.clinic_name }}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; font-size: 11pt; color: #1a2e22; background: #fff; }
+  .page { width: 210mm; min-height: 297mm; padding: 12mm 14mm; margin: 0 auto; display: flex; flex-direction: column; }
+  .header { display: flex; justify-content: space-between; border-bottom: 2px solid #1a6b3c; padding-bottom: 8pt; margin-bottom: 10pt; }
+  .clinic-name { font-family: 'DM Serif Display', serif; font-size: 18pt; color: #1a6b3c; }
+  .clinic-sub { font-size: 8pt; color: #6b8077; margin-top: 2pt; }
+  .invoice-meta { text-align: right; }
+  .invoice-num { font-size: 13pt; font-weight: 700; color: #1a6b3c; }
+  .badge-row { display: flex; gap: 6pt; justify-content: flex-end; margin-top: 3pt; }
+  .badge { display: inline-block; padding: 2pt 7pt; border-radius: 10pt; font-size: 8pt; font-weight: 600; }
+  .badge-paid { background: #d1fae5; color: #065f46; }
+  .badge-unpaid { background: #fee2e2; color: #991b1b; }
+  .badge-partial { background: #fef3c7; color: #92400e; }
+  /* Patient row */
+  .patient-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 16pt; background: #f0faf4; border: 1px solid #b6e0c7; border-radius: 6pt; padding: 8pt 10pt; margin-bottom: 10pt; }
+  .lbl { font-size: 7pt; color: #6b8077; text-transform: uppercase; letter-spacing: .04em; }
+  .val { font-size: 9.5pt; font-weight: 600; margin-top: 1pt; }
+  /* Table */
+  .items-table { width: 100%; border-collapse: collapse; margin-bottom: 8pt; }
+  .items-table th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .04em; color: #6b8077; padding: 5pt 6pt; border-bottom: 1.5px solid #1a6b3c; text-align: left; }
+  .items-table td { padding: 6pt 6pt; border-bottom: 1px solid #e8f0ec; font-size: 10pt; vertical-align: middle; }
+  .items-table tr:last-child td { border-bottom: none; }
+  .items-table .num { text-align: right; }
+  /* Totals */
+  .totals-section { display: flex; justify-content: flex-end; }
+  .totals-box { width: 200pt; }
+  .totals-row { display: flex; justify-content: space-between; padding: 3pt 0; font-size: 9.5pt; }
+  .totals-row.total { border-top: 2px solid #1a6b3c; margin-top: 4pt; padding-top: 6pt; font-weight: 700; font-size: 12pt; color: #1a6b3c; }
+  /* Payment info */
+  .pay-info { display: flex; gap: 16pt; margin-top: 8pt; margin-bottom: 8pt; }
+  .pay-block { flex: 1; background: #f0faf4; border: 1px solid #b6e0c7; border-radius: 6pt; padding: 6pt 10pt; }
+  .pay-block .lbl { font-size: 7pt; color: #6b8077; text-transform: uppercase; }
+  .pay-block .val { font-size: 11pt; font-weight: 700; color: #1a6b3c; margin-top: 1pt; }
+  /* Footer */
+  .footer { margin-top: auto; padding-top: 8pt; border-top: 1px dashed #b6e0c7; display: flex; justify-content: space-between; align-items: flex-end; font-size: 8pt; color: #6b8077; }
+  .qr-placeholder { width: 55pt; height: 55pt; border: 1px solid #d0e8db; border-radius: 4pt; display: flex; align-items: center; justify-content: center; font-size: 7pt; color: #b6e0c7; }
+  @media print { .no-print { display: none !important; } body { padding: 0; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <div class="clinic-name">{{ cfg.clinic_name }}</div>
+      {% if cfg.clinic_tagline %}<div class="clinic-sub">{{ cfg.clinic_tagline }}</div>{% endif %}
+      <div class="clinic-sub">{{ cfg.address_line1 }}{% if cfg.city %}, {{ cfg.city }}{% endif %}{% if cfg.pincode %} - {{ cfg.pincode }}{% endif %}</div>
+      {% if cfg.phone %}<div class="clinic-sub">📞 {{ cfg.phone }}{% if cfg.email %} &nbsp;|&nbsp; ✉ {{ cfg.email }}{% endif %}</div>{% endif %}
+      {% if cfg.gstin %}<div class="clinic-sub">GSTIN: {{ cfg.gstin }}</div>{% endif %}
+    </div>
+    <div class="invoice-meta">
+      <div class="invoice-num">INVOICE</div>
+      <div style="font-size:10pt;font-weight:600;color:#374151;">{{ invoice.invoice_number }}</div>
+      <div style="font-size:8pt;color:#6b8077;margin-top:3pt;">Date: {{ invoice.invoice_date|date:"d M Y" }}</div>
+      <div class="badge-row">
+        <span class="badge {% if invoice.payment_status == 'paid' %}badge-paid{% elif invoice.payment_status == 'unpaid' %}badge-unpaid{% else %}badge-partial{% endif %}">{{ invoice.get_payment_status_display }}</span>
+        {% if invoice.is_first_visit %}<span class="badge" style="background:#e0e7ff;color:#4338ca;">First Visit</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="patient-row">
+    <div><div class="lbl">Patient Name</div><div class="val">{{ invoice.patient.first_name }} {{ invoice.patient.last_name }}</div></div>
+    <div><div class="lbl">Mobile</div><div class="val">{{ invoice.patient.phone_number|default:"—" }}</div></div>
+    <div><div class="lbl">Address</div><div class="val" style="font-weight:400;font-size:9pt;">{{ invoice.patient.address|default:"—"|truncatechars:60 }}</div></div>
+    <div><div class="lbl">Invoice Date</div><div class="val">{{ invoice.invoice_date|date:"d M Y" }}</div></div>
+  </div>
+
+  <table class="items-table">
+    <thead><tr><th>#</th><th>Description</th><th>Category</th><th class="num">Qty</th><th class="num">Rate (₹)</th><th class="num">Amount (₹)</th></tr></thead>
+    <tbody>
+    {% for item in invoice.items.all %}
+    <tr>
+      <td style="color:#6b8077;font-size:9pt;">{{ forloop.counter }}</td>
+      <td style="font-weight:500;">{{ item.description }}</td>
+      <td style="font-size:8.5pt;color:#6b8077;">{{ item.category|title }}</td>
+      <td class="num">{{ item.quantity }}</td>
+      <td class="num">{{ item.unit_rate|floatformat:2 }}</td>
+      <td class="num" style="font-weight:600;">{{ item.amount|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totals-section">
+    <div class="totals-box">
+      <div class="totals-row"><span>Subtotal</span><span>₹{{ invoice.subtotal|floatformat:2 }}</span></div>
+      {% if invoice.discount_amount > 0 %}<div class="totals-row" style="color:#059669;"><span>Discount</span><span>-₹{{ invoice.discount_amount|floatformat:2 }}</span></div>{% endif %}
+      {% if invoice.tax_amount > 0 %}<div class="totals-row"><span>Tax</span><span>₹{{ invoice.tax_amount|floatformat:2 }}</span></div>{% endif %}
+      <div class="totals-row total"><span>TOTAL</span><span>₹{{ invoice.total_amount|floatformat:2 }}</span></div>
+    </div>
+  </div>
+
+  <div class="pay-info">
+    <div class="pay-block"><div class="lbl">Amount Paid</div><div class="val">₹{{ invoice.amount_paid|floatformat:0 }}</div></div>
+    <div class="pay-block"><div class="lbl">Balance Due</div><div class="val" style="color:{% if invoice.balance_due > 0 %}#dc2626{% else %}#059669{% endif %};">₹{{ invoice.balance_due|floatformat:0 }}</div></div>
+    {% if invoice.payment_mode %}<div class="pay-block"><div class="lbl">Payment Mode</div><div class="val" style="font-size:9pt;">{{ invoice.get_payment_mode_display }}</div></div>{% endif %}
+  </div>
+
+  {% if invoice.notes %}<div style="font-size:8.5pt;color:#6b8077;margin-bottom:8pt;">Note: {{ invoice.notes }}</div>{% endif %}
+
+  <div class="footer">
+    <div>
+      <div>{{ cfg.invoice_footer_note }}</div>
+      <div style="margin-top:3pt;">This is a computer-generated invoice.</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="width:100pt;border-top:1px solid #1a2e22;padding-top:3pt;text-align:center;">Authorised Signatory</div>
+    </div>
+  </div>
+</div>
+
+<div class="no-print" style="text-align:center;padding:1rem;">
+  <button onclick="window.print()" style="background:#1a6b3c;color:#fff;border:none;border-radius:8px;padding:.6rem 2rem;font-size:.9rem;cursor:pointer;font-family:inherit;">🖨 Print Invoice</button>
+  <button onclick="window.close()" style="background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.9rem;cursor:pointer;margin-left:.5rem;font-family:inherit;">Close</button>
+</div>
+</body>
+</html>

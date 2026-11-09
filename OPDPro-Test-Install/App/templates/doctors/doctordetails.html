@@ -1,0 +1,70 @@
+{% extends "base/base.html" %}
+{% block title %}{{ doctor.first_name }} {{ doctor.last_name }} · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <nav style="font-size:.8rem; color:var(--text-muted); margin-bottom:.35rem;">
+      <a href="{% url 'doctors:doctors_list' %}" style="color:var(--text-muted); text-decoration:none;">Doctors</a> / Profile
+    </nav>
+    <h1>{{ doctor.first_name }} {{ doctor.last_name }}</h1>
+  </div>
+  <div class="d-flex gap-2">
+    {% if user.pk == doctor.pk or user.is_staff %}
+    <a href="{% url 'doctors:doctor_edit' doctor.pk %}" class="btn-outline-opd"><i class="bi bi-pencil me-1"></i>Edit</a>
+    {% endif %}
+    {% if user.pk != doctor.pk %}
+    <a href="{% url 'user_notifications:send_message' doctor.pk %}" class="btn btn-primary-opd"><i class="bi bi-chat me-1"></i>Message</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="opd-card text-center">
+      <div class="rounded-circle d-flex align-items-center justify-content-center fw-700 mx-auto mb-3" style="width:80px;height:80px;background:var(--primary-soft);color:var(--primary);font-size:1.6rem;">
+        {{ doctor.first_name|slice:":1" }}{{ doctor.last_name|slice:":1" }}
+      </div>
+      <div style="font-size:1.1rem; font-weight:700;">Dr. {{ doctor.first_name }} {{ doctor.last_name }}</div>
+      <div style="font-size:.82rem; color:var(--text-muted); margin:.25rem 0 .75rem;">{{ doctor.staff_role|default:"Staff"|title }}</div>
+      {% if doctor.specialization %}
+      <div style="font-size:.82rem; color:var(--text-muted); margin:.25rem 0 .75rem;">{{ doctor.specialization }}</div>
+      {% endif %}
+      {% if doctor.gender %}
+      <span style="background:var(--surface-2); border:1px solid var(--border); padding:.25rem .75rem; border-radius:20px; font-size:.75rem;">
+        {{ doctor.get_gender_display }}
+      </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="opd-card">
+      <div class="section-title"><i class="bi bi-person-lines-fill" style="color:var(--primary);"></i> Contact Details</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div style="font-size:.73rem; color:var(--text-muted); margin-bottom:.2rem;">EMAIL</div>
+          <a href="mailto:{{ doctor.email }}" style="font-size:.875rem; color:var(--primary); text-decoration:none;">{{ doctor.email }}</a>
+        </div>
+        <div class="col-md-6">
+          <div style="font-size:.73rem; color:var(--text-muted); margin-bottom:.2rem;">MOBILE</div>
+          <a href="tel:{{ doctor.mobile_number }}" style="font-size:.875rem; color:var(--primary); text-decoration:none;">{{ doctor.mobile_number|default:"Not provided" }}</a>
+        </div>
+        <div class="col-md-6">
+          <div style="font-size:.73rem; color:var(--text-muted); margin-bottom:.2rem;">DATE OF BIRTH</div>
+          <div style="font-size:.875rem;">{{ doctor.date_of_birth|date:"d M Y"|default:"—" }}</div>
+        </div>
+        <div class="col-md-6">
+          <div style="font-size:.73rem; color:var(--text-muted); margin-bottom:.2rem;">STATUS</div>
+          <span style="font-size:.78rem; padding:.2rem .65rem; border-radius:20px; font-weight:600; {% if doctor.is_active %}background:#d1fae5; color:#065f46;{% else %}background:#fee2e2; color:#991b1b;{% endif %}">
+            {{ doctor.is_active|yesno:"Active,Inactive" }}
+          </span>
+        </div>
+        <div class="col-md-6">
+          <div style="font-size:.73rem; color:var(--text-muted); margin-bottom:.2rem;">JOINED</div>
+          <div style="font-size:.875rem;">{{ doctor.date_joined|date:"d M Y" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

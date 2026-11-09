@@ -1,0 +1,90 @@
+{% extends "base/base.html" %}
+{% block title %}Billing · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div><h1>Billing</h1><p>Revenue overview &amp; invoices</p></div>
+  <a href="{% url 'billing:create_invoice' %}" class="btn btn-primary-opd"><i class="bi bi-plus me-1"></i>New Invoice</a>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="icon" style="background:#d1fae5;color:#065f46;"><i class="bi bi-currency-rupee"></i></div>
+      <div><div class="label">Today's Collection</div><div class="value">₹{{ total_today|floatformat:0 }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="icon" style="background:#e0e7ff;color:#4338ca;"><i class="bi bi-calendar-month"></i></div>
+      <div><div class="label">This Month</div><div class="value">₹{{ total_month|floatformat:0 }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="icon" style="background:#fef3c7;color:#92400e;"><i class="bi bi-hourglass"></i></div>
+      <div><div class="label">Pending Bills</div><div class="value">{{ unpaid_count }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="icon" style="background:#fee2e2;color:#991b1b;"><i class="bi bi-exclamation-circle"></i></div>
+      <div><div class="label">Pending Amount</div><div class="value">₹{{ unpaid_amount|floatformat:0 }}</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="opd-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="section-title mb-0"><i class="bi bi-receipt" style="color:var(--primary);"></i> Recent Invoices</div>
+        <a href="{% url 'billing:invoice_list' %}" style="font-size:.8rem;color:var(--primary);text-decoration:none;">View all →</a>
+      </div>
+      <div class="table-responsive">
+        <table class="opd-table">
+          <thead><tr><th>Invoice</th><th>Patient</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+          {% for inv in recent_invoices %}
+          <tr>
+            <td style="font-size:.8rem;font-weight:600;color:var(--primary);">{{ inv.invoice_number }}</td>
+            <td style="font-size:.875rem;font-weight:500;">{{ inv.patient.first_name }} {{ inv.patient.last_name }}</td>
+            <td style="font-size:.82rem;">{{ inv.invoice_date|date:"d M Y" }}</td>
+            <td style="font-size:.875rem;font-weight:600;">₹{{ inv.total_amount|floatformat:0 }}</td>
+            <td>
+              <span class="status-badge {% if inv.payment_status == 'paid' %}status-completed{% elif inv.payment_status == 'unpaid' %}status-cancelled{% else %}status-pending{% endif %}">
+                {{ inv.get_payment_status_display }}
+              </span>
+            </td>
+            <td>
+              <a href="{% url 'billing:invoice_detail' inv.pk %}" class="btn btn-sm" style="padding:.25rem .5rem;background:var(--primary-soft);color:var(--primary);border-radius:6px;"><i class="bi bi-eye"></i></a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-4 text-muted">No invoices yet.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="opd-card">
+      <div class="section-title"><i class="bi bi-list-check" style="color:#f97316;"></i> Fee Catalogue</div>
+      {% for item in fee_items %}
+      <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);font-size:.82rem;">
+        <div>
+          <div style="font-weight:500;">{{ item.name }}</div>
+          <div style="font-size:.72rem;color:var(--text-muted);">{{ item.get_category_display }}</div>
+        </div>
+        <div style="font-weight:700;color:var(--primary);">₹{{ item.default_rate|floatformat:0 }}</div>
+      </div>
+      {% empty %}
+      <p style="font-size:.82rem;color:var(--text-muted);">No fee items configured.</p>
+      {% endfor %}
+      <a href="{% url 'billing:fee_settings' %}" class="btn btn-sm btn-primary-opd w-100 mt-3" style="font-size:.78rem;"><i class="bi bi-gear me-1"></i>Manage Fees</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

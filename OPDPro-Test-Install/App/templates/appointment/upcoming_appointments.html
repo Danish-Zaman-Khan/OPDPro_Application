@@ -1,0 +1,33 @@
+{% extends "base/base.html" %}
+{% block title %}Upcoming Appointments · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Upcoming Appointments</h1>
+  <p>Next 7 days</p>
+</div>
+<div class="opd-card">
+  {% if appointments %}
+  <div class="table-responsive">
+    <table class="opd-table">
+      <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for appt in appointments %}
+      <tr>
+        <td style="font-weight:500; font-size:.875rem;">{{ appt.patient.first_name }} {{ appt.patient.last_name }}</td>
+        <td style="font-size:.875rem;">{{ appt.date|date:"d M Y" }}</td>
+        <td style="font-size:.875rem;">{{ appt.time|time:"H:i" }}</td>
+        <td><span class="status-badge status-{{ appt.status|lower }}">{{ appt.status }}</span></td>
+        <td><a href="{% url 'appointment:appointment_detail' appt.id %}" class="btn btn-sm" style="padding:.25rem .5rem; background:var(--primary-soft); color:var(--primary); border-radius:6px;"><i class="bi bi-eye"></i></a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5" style="color:var(--text-muted);">
+    <i class="bi bi-calendar-check fs-1 d-block mb-3 opacity-40"></i>
+    <p>No upcoming appointments in the next 7 days.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

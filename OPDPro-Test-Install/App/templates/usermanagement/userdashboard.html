@@ -1,0 +1,130 @@
+{% extends "base/base.html" %}
+
+{% block title %}Dashboard · OPDPro{% endblock %}
+
+{% block extra_styles %}
+  .dashboard { --dash-ink:#173c30; --dash-mint:#e4f1e9; --dash-line:#dce7df; }
+  .dashboard-head { display:flex; justify-content:space-between; align-items:flex-end; gap:1rem; margin-bottom:1.35rem; }
+  .dashboard-kicker { color:var(--primary); font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:.35rem; }
+  .dashboard-head h1 { margin:0 0 .2rem; font:1.65rem 'DM Serif Display',serif; color:var(--dash-ink); }
+  .dashboard-head p { margin:0; color:var(--text-muted); font-size:.82rem; }
+  .dashboard-actions { display:flex; gap:.5rem; flex-shrink:0; }
+  .dashboard-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; margin-bottom:1.2rem; perspective:1100px; }
+  .dashboard-metric { display:grid; grid-template-columns:42px minmax(0,1fr); align-items:center; gap:.75rem; min-width:0; padding:.95rem 1rem; border:1px solid var(--dash-line); border-radius:8px; background:linear-gradient(145deg,var(--surface),var(--surface-2)); box-shadow:0 2px 3px rgba(23,60,48,.04),0 9px 18px rgba(23,60,48,.055),inset 0 1px 0 rgba(255,255,255,.7); transform-style:preserve-3d; transition:transform .2s ease,box-shadow .2s ease; }
+  .metric-icon { width:42px; height:42px; display:grid; place-items:center; border-radius:7px; font-size:1.1rem; box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 3px 7px rgba(20,48,35,.1); transform:translateZ(10px); }
+  .metric-patients .metric-icon { background:#e4f1e9; color:#1a6b3c; }
+  .metric-queue .metric-icon { background:#fff0db; color:#a35413; }
+  .metric-completed .metric-icon { background:#e3f2ec; color:#17654e; }
+  .metric-pending .metric-icon { background:#fff4d9; color:#89601b; }
+  .dashboard-metric-label { color:var(--text-muted); font-size:.69rem; font-weight:600; line-height:1.3; }
+  .dashboard-metric-value { display:flex; align-items:baseline; gap:.4rem; margin-top:.18rem; color:var(--dash-ink); font-size:1.45rem; line-height:1.2; font-weight:700; font-variant-numeric:tabular-nums; transform:translateZ(6px); }
+  .dashboard-metric-note { color:var(--text-muted); font-size:.68rem; font-weight:400; }
+  .dashboard-grid { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(270px,.85fr); gap:1rem; align-items:start; }
+  .dashboard-panel { background:linear-gradient(150deg,var(--surface),var(--surface-2)); border:1px solid var(--dash-line); border-radius:8px; overflow:hidden; }
+  .dashboard-panel-head { display:flex; justify-content:space-between; align-items:center; gap:.75rem; padding:.95rem 1rem; border-bottom:1px solid var(--dash-line); background:linear-gradient(105deg,var(--surface),transparent); }
+  .dashboard-panel-title { color:var(--dash-ink); font-size:.9rem; font-weight:700; margin:0; }
+  .dashboard-panel-subtitle { color:var(--text-muted); font-size:.7rem; margin-top:.12rem; }
+  .dashboard-count { display:inline-flex; align-items:center; justify-content:center; min-width:1.6rem; height:1.6rem; padding:0 .35rem; border-radius:4px; background:var(--dash-mint); color:var(--primary); font-size:.72rem; font-weight:700; }
+  .queue-table th { padding:.55rem .8rem; }
+  .queue-table td { padding:.62rem .8rem; }
+  .queue-patient { color:var(--text); font-size:.82rem; font-weight:600; }
+  .queue-reason { color:var(--text-muted); font-size:.7rem; margin-top:.1rem; }
+  .queue-time { white-space:nowrap; color:var(--dash-ink); font-size:.78rem; font-variant-numeric:tabular-nums; }
+  .queue-actions a { width:29px; height:29px; display:inline-flex; align-items:center; justify-content:center; }
+  .upcoming-list { padding:.25rem 1rem .45rem; }
+  .upcoming-item { display:grid; grid-template-columns:44px minmax(0,1fr) auto; align-items:center; gap:.7rem; padding:.75rem 0; border-bottom:1px solid var(--dash-line); text-decoration:none; }
+  .upcoming-item:last-child { border-bottom:0; }
+  .upcoming-date { text-align:center; padding:.32rem .2rem; background:var(--surface-2); border:1px solid var(--dash-line); border-radius:5px; color:var(--dash-ink); line-height:1.1; transition:transform .16s ease,box-shadow .16s ease; }
+  .upcoming-date strong { display:block; font-size:.95rem; }
+  .upcoming-date span { display:block; margin-top:.15rem; color:var(--text-muted); font-size:.62rem; text-transform:uppercase; }
+  .upcoming-name { overflow:hidden; color:var(--text); font-size:.78rem; font-weight:600; text-overflow:ellipsis; white-space:nowrap; }
+  .upcoming-time { color:var(--text-muted); font-size:.69rem; margin-top:.15rem; }
+  .dashboard-empty { padding:2rem 1rem; text-align:center; color:var(--text-muted); font-size:.8rem; }
+  .dashboard-empty i { display:block; margin-bottom:.45rem; color:#8ba194; font-size:1.45rem; }
+  @media(hover:hover) and (prefers-reduced-motion:no-preference) {
+    .dashboard-metric:hover { transform:perspective(900px) translateY(-3px) rotateX(1deg); box-shadow:0 4px 7px rgba(23,60,48,.055),0 16px 26px rgba(23,60,48,.12),inset 0 1px 0 rgba(255,255,255,.8); }
+    .upcoming-item:hover .upcoming-date { transform:perspective(300px) translateZ(5px) rotateY(-4deg); box-shadow:0 3px 8px rgba(20,48,35,.12); }
+  }
+  @media(prefers-reduced-motion:reduce) { .dashboard-metric,.upcoming-date { transition:none; } }
+  [data-bs-theme="dark"] .dashboard { --dash-ink:#e8f0ec; --dash-mint:#1a3028; --dash-line:var(--border); }
+  [data-bs-theme="dark"] .metric-patients .metric-icon { background:#1a3028; color:#8dd0a5; }
+  [data-bs-theme="dark"] .metric-queue .metric-icon { background:#392b1c; color:#f0bc77; }
+  [data-bs-theme="dark"] .metric-completed .metric-icon { background:#19332b; color:#8bcbb2; }
+  [data-bs-theme="dark"] .metric-pending .metric-icon { background:#382e1c; color:#e5c27d; }
+  [data-bs-theme="dark"] .dashboard-metric { box-shadow:0 2px 4px rgba(0,0,0,.16),0 10px 20px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.035); }
+  @media(max-width:900px) { .dashboard-grid { grid-template-columns:minmax(0,1.2fr) minmax(250px,.8fr); } }
+  @media(max-width:700px) { .dashboard-head { align-items:flex-start; flex-direction:column; } .dashboard-actions { width:100%; } .dashboard-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .dashboard-grid { grid-template-columns:1fr; } }
+  @media(max-width:420px) { .dashboard-head h1 { font-size:1.45rem; } .queue-table th, .queue-table td { padding:.55rem .5rem; } .queue-reason { max-width:145px; } }
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+  <header class="dashboard-head">
+    <div>
+      <div class="dashboard-kicker">Clinic overview · {{ current_day|date:"l, j F Y" }}</div>
+      <h1>Good {% now "H" as hour %}{% if hour < "12" %}morning{% elif hour < "17" %}afternoon{% else %}evening{% endif %}, {{ request.user.first_name|default:request.user.username }}</h1>
+      <p>Your practice, at a glance.</p>
+    </div>
+    <div class="dashboard-actions">
+      <a href="{% url 'patients:patient_register' %}" class="btn btn-outline-opd"><i class="bi bi-person-plus me-2"></i>Register patient</a>
+      <a href="{% url 'appointment:book_appointment' %}" class="btn btn-primary-opd"><i class="bi bi-calendar-plus me-2"></i>New appointment</a>
+    </div>
+  </header>
+
+  <section class="dashboard-metrics" aria-label="Clinic totals">
+    <article class="dashboard-metric metric-patients"><span class="metric-icon"><i class="bi bi-people-fill" aria-hidden="true"></i></span><div><div class="dashboard-metric-label">Patients registered</div><div class="dashboard-metric-value">{{ total_patients }}</div></div></article>
+    <article class="dashboard-metric metric-queue"><span class="metric-icon"><i class="bi bi-calendar2-week-fill" aria-hidden="true"></i></span><div><div class="dashboard-metric-label">In today's queue</div><div class="dashboard-metric-value">{{ todays_appointments|length }}<span class="dashboard-metric-note">to see</span></div></div></article>
+    <article class="dashboard-metric metric-completed"><span class="metric-icon"><i class="bi bi-check2-circle" aria-hidden="true"></i></span><div><div class="dashboard-metric-label">Completed today</div><div class="dashboard-metric-value">{{ completed_today }}</div></div></article>
+    <article class="dashboard-metric metric-pending"><span class="metric-icon"><i class="bi bi-hourglass-split" aria-hidden="true"></i></span><div><div class="dashboard-metric-label">Pending appointments</div><div class="dashboard-metric-value">{{ pending_count }}</div></div></article>
+  </section>
+
+  <div class="dashboard-grid">
+    <section class="dashboard-panel" aria-labelledby="today-heading">
+      <div class="dashboard-panel-head">
+        <div><h2 class="dashboard-panel-title" id="today-heading">Today's appointments</h2><div class="dashboard-panel-subtitle">The remaining patient queue, in appointment order</div></div>
+        <span class="dashboard-count">{{ todays_appointments|length }}</span>
+      </div>
+      {% if todays_appointments %}
+      <div class="table-responsive">
+        <table class="opd-table queue-table">
+          <thead><tr><th>Patient</th><th>Time</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+          <tbody>
+          {% for appt in todays_appointments %}
+          <tr>
+            <td><div class="queue-patient">{{ appt.patient.first_name }} {{ appt.patient.last_name }}</div><div class="queue-reason">{{ appt.appointment_reason|truncatechars:30|default:"No reason noted" }}</div></td>
+            <td><span class="queue-time">{{ appt.time|time:"H:i" }}</span></td>
+            <td><span class="status-badge status-{{ appt.status|lower }}">{{ appt.status }}</span></td>
+            <td>
+              <div class="d-flex gap-1 justify-content-end queue-actions">
+                <a href="{% url 'appointment:appointment_detail' appt.id %}" class="btn btn-sm" style="padding:.25rem .5rem; background:var(--primary-soft); color:var(--primary); border-radius:5px;" title="View appointment" aria-label="View appointment for {{ appt.patient.first_name }}"><i class="bi bi-arrow-up-right"></i></a>
+                {% if appt.status != 'Cancelled' and appt.status != 'Completed' %}<a href="{% url 'appointment:cancel_appointment' appt.id %}" class="btn btn-sm" style="padding:.25rem .5rem; background:#fee2e2; color:#991b1b; border-radius:5px;" title="Cancel appointment" aria-label="Cancel appointment for {{ appt.patient.first_name }}"><i class="bi bi-x-lg"></i></a>{% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}<div class="dashboard-empty"><i class="bi bi-calendar2-check"></i>No appointments left in today's queue.</div>{% endif %}
+    </section>
+
+    <section class="dashboard-panel" aria-labelledby="upcoming-heading">
+      <div class="dashboard-panel-head">
+        <div><h2 class="dashboard-panel-title" id="upcoming-heading">Coming up</h2><div class="dashboard-panel-subtitle">Next seven days</div></div>
+        <span class="dashboard-count">{{ upcoming_appointments|length }}</span>
+      </div>
+      {% if upcoming_appointments %}
+      <div class="upcoming-list">
+        {% for appt in upcoming_appointments %}
+        <a href="{% url 'appointment:appointment_detail' appt.id %}" class="upcoming-item">
+          <span class="upcoming-date"><strong>{{ appt.date|date:"j" }}</strong><span>{{ appt.date|date:"M" }}</span></span>
+          <span style="min-width:0;"><span class="upcoming-name d-block">{{ appt.patient.first_name }} {{ appt.patient.last_name }}</span><span class="upcoming-time d-block">{{ appt.time|time:"H:i" }} · {{ appt.status }}</span></span>
+          <i class="bi bi-chevron-right" style="color:var(--text-muted);font-size:.72rem;" aria-hidden="true"></i>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}<div class="dashboard-empty"><i class="bi bi-calendar2-minus"></i>No upcoming appointments scheduled.</div>{% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

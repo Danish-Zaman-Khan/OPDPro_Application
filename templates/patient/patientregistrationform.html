@@ -1,0 +1,79 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks %}
+{% block title %}Register Patient · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Register New Patient</h1>
+  <p>Fill in the patient's details below</p>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="opd-card">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">First Name <span class="text-danger">*</span></label>
+            {{ form.first_name|add_class:"form-control" }}
+            {% if form.first_name.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.first_name.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+            {{ form.last_name|add_class:"form-control" }}
+            {% if form.last_name.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.last_name.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+            {{ form.date_of_birth|add_class:"form-control" }}
+            {% if form.date_of_birth.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.date_of_birth.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Gender <span class="text-danger">*</span></label>
+            {{ form.gender|add_class:"form-select" }}
+            {% if form.gender.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.gender.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone Number</label>
+            {{ form.phone_number|add_class:"form-control" |attr:"placeholder:+91 XXXXX XXXXX" }}
+            {% if form.phone_number.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.phone_number.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email</label>
+            {{ form.email|add_class:"form-control" }}
+            {% if form.email.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.email.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Blood Type</label>
+            {{ form.blood_type|add_class:"form-select" }}
+            {% if form.blood_type.errors %}<div class="text-danger mt-1" style="font-size:.75rem;">{{ form.blood_type.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Address</label>
+            {{ form.address|add_class:"form-control" |attr:"rows:2" }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Emergency Contact Name</label>
+            {{ form.emergency_contact_name|add_class:"form-control" }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Emergency Contact Phone</label>
+            {{ form.emergency_contact_phone|add_class:"form-control" |attr:"placeholder:+91 XXXXX XXXXX" }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Medical History</label>
+            {{ form.medical_history|add_class:"form-control" |attr:"rows:3" |attr:"placeholder:Past surgeries, chronic conditions, ongoing medications..." }}
+          </div>
+          <div class="col-12">
+            <label class="form-label">Known Allergies</label>
+            {{ form.allergies|add_class:"form-control" |attr:"rows:2" |attr:"placeholder:Drug allergies, food allergies, etc." }}
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-4 pt-3" style="border-top:1px solid var(--border);">
+          <button type="submit" class="btn btn-primary-opd px-4"><i class="bi bi-person-check me-2"></i>Register Patient</button>
+          <a href="{% url 'patients:patient_list' %}" class="btn-outline-opd px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

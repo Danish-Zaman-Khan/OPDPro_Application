@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rx-{{ rx.pk }} · {{ rx.patient }}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; font-size: 12pt; color: #1a2e22; background: #fff; padding: 0; }
+  .page { width: 210mm; min-height: 297mm; padding: 12mm 14mm; margin: 0 auto; }
+  /* Header */
+  .rx-header { border-bottom: 2px solid #1a6b3c; padding-bottom: 8pt; margin-bottom: 10pt; display: flex; justify-content: space-between; align-items: flex-start; }
+  .clinic-name { font-family: 'DM Serif Display', serif; font-size: 18pt; color: #1a6b3c; }
+  .clinic-sub { font-size: 8pt; color: #6b8077; margin-top: 2pt; }
+  .doctor-info { text-align: right; font-size: 9pt; }
+  .doctor-name { font-size: 11pt; font-weight: 600; color: #1a2e22; }
+  /* Patient strip */
+  .patient-strip { background: #f0faf4; border: 1px solid #b6e0c7; border-radius: 6pt; padding: 7pt 10pt; margin-bottom: 10pt; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4pt 12pt; }
+  .patient-strip .lbl { font-size: 7pt; color: #6b8077; text-transform: uppercase; letter-spacing: .04em; }
+  .patient-strip .val { font-size: 9.5pt; font-weight: 600; }
+  /* Vitals */
+  .clinical-row { display: flex; gap: 16pt; margin-bottom: 8pt; }
+  .clinical-block { flex: 1; }
+  .clinical-block .lbl { font-size: 7.5pt; color: #6b8077; text-transform: uppercase; margin-bottom: 1pt; }
+  .clinical-block .val { font-size: 10pt; font-weight: 500; border-bottom: 1px dotted #c5d9cc; padding-bottom: 2pt; }
+  /* Rx symbol */
+  .rx-symbol { font-family: 'DM Serif Display', serif; font-size: 28pt; color: #1a6b3c; float: left; line-height: 1; margin-right: 6pt; margin-top: -2pt; }
+  .medicines-heading { font-size: 10pt; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #1a6b3c; border-bottom: 1px solid #d0e8db; padding-bottom: 4pt; margin-bottom: 8pt; clear: both; }
+  /* Medicine table */
+  .med-table { width: 100%; border-collapse: collapse; margin-bottom: 10pt; }
+  .med-table th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .04em; color: #6b8077; padding: 4pt 6pt; border-bottom: 1px solid #d0e8db; text-align: left; }
+  .med-table td { padding: 5pt 6pt; border-bottom: 1px dashed #e8f0ec; font-size: 10pt; vertical-align: middle; }
+  .med-table tr:last-child td { border-bottom: none; }
+  .med-num { display: inline-block; width: 18pt; height: 18pt; border-radius: 50%; background: #1a6b3c; color: #fff; font-size: 8pt; font-weight: 700; text-align: center; line-height: 18pt; flex-shrink: 0; }
+  .freq-badge { display: inline-block; background: #e8f5ee; color: #1a6b3c; border-radius: 4pt; padding: 1pt 5pt; font-size: 8.5pt; font-weight: 700; }
+  /* Advice box */
+  .advice-box { border: 1px solid #d0e8db; border-radius: 6pt; padding: 8pt 10pt; margin-bottom: 10pt; background: #fafffe; }
+  .advice-box .lbl { font-size: 8pt; color: #1a6b3c; font-weight: 600; margin-bottom: 3pt; }
+  /* Footer */
+  .rx-footer { margin-top: auto; padding-top: 10pt; border-top: 1px solid #d0e8db; display: flex; justify-content: space-between; align-items: flex-end; }
+  .signature-line { width: 120pt; border-top: 1px solid #1a2e22; padding-top: 3pt; text-align: center; font-size: 8.5pt; color: #6b8077; }
+  .follow-up { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6pt; padding: 5pt 10pt; font-size: 9pt; }
+  .follow-up strong { color: #c2410c; }
+  .allergy-warn { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 4pt; padding: 4pt 8pt; font-size: 8.5pt; color: #991b1b; margin-bottom: 8pt; }
+  .watermark { color: #e8f5ee; font-size: 7pt; text-align: center; margin-top: 8pt; }
+  @media print {
+    body { padding: 0; }
+    .no-print { display: none !important; }
+    .page { padding: 8mm 10mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Clinic Header -->
+  <div class="rx-header">
+    <div>
+      <div class="clinic-name">{{ cfg.clinic_name }}</div>
+      {% if cfg.clinic_tagline %}<div class="clinic-sub">{{ cfg.clinic_tagline }}</div>{% endif %}
+      <div class="clinic-sub">{{ cfg.address_line1 }}{% if cfg.address_line2 %}, {{ cfg.address_line2 }}{% endif %}{% if cfg.city %}, {{ cfg.city }}{% endif %} {% if cfg.pincode %}— {{ cfg.pincode }}{% endif %}</div>
+      <div class="clinic-sub">📞 {{ cfg.phone }}{% if cfg.email %} &nbsp;|&nbsp; ✉ {{ cfg.email }}{% endif %}</div>
+      {% if cfg.registration_no %}<div class="clinic-sub">Reg. No: {{ cfg.registration_no }}</div>{% endif %}
+    </div>
+    <div class="doctor-info">
+      {% if rx.doctor %}
+      <div class="doctor-name">Dr. {{ rx.doctor.first_name }} {{ rx.doctor.last_name }}</div>
+      {% if rx.doctor.specialization %}<div>{{ rx.doctor.specialization }}</div>{% endif %}
+      {% if rx.doctor.license_number %}<div style="color:#6b8077;">Reg: {{ rx.doctor.license_number }}</div>{% endif %}
+      {% if rx.doctor.mobile_number %}<div>📞 {{ rx.doctor.mobile_number }}</div>{% endif %}
+      {% endif %}
+      <div style="font-size:8pt;color:#6b8077;margin-top:3pt;">Date: {{ rx.date|date:"d M Y" }} &nbsp;&nbsp; Rx-{{ rx.pk }}</div>
+    </div>
+  </div>
+
+  <!-- Patient Strip -->
+  <div class="patient-strip">
+    <div><div class="lbl">Patient Name</div><div class="val">{{ rx.patient.first_name }} {{ rx.patient.last_name }}</div></div>
+    <div><div class="lbl">Age / Gender</div><div class="val">{% if rx.patient.date_of_birth %}{{ rx.patient.date_of_birth|timesince|truncatewords:2 }}{% endif %} / {{ rx.patient.get_gender_display }}</div></div>
+    <div><div class="lbl">Mobile</div><div class="val">{{ rx.patient.phone_number|default:"—" }}</div></div>
+  </div>
+
+  <!-- Allergy warning -->
+  {% if rx.patient.allergies %}
+  <div class="allergy-warn">⚠️ <strong>KNOWN ALLERGIES:</strong> {{ rx.patient.allergies }}</div>
+  {% endif %}
+
+  <!-- Clinical info -->
+  <div class="clinical-row">
+    {% if rx.chief_complaint %}<div class="clinical-block"><div class="lbl">Chief Complaint</div><div class="val">{{ rx.chief_complaint }}</div></div>{% endif %}
+    {% if rx.diagnosis %}<div class="clinical-block"><div class="lbl">Diagnosis</div><div class="val" style="font-weight:700;color:#1a6b3c;">{{ rx.diagnosis }}</div></div>{% endif %}
+  </div>
+
+  <!-- Rx Medicines -->
+  <div style="overflow:hidden;margin-bottom:6pt;">
+    <span class="rx-symbol">℞</span>
+    <div class="medicines-heading">Medicines Prescribed</div>
+  </div>
+
+  <table class="med-table">
+    <thead><tr><th>#</th><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Quantity</th><th>Instructions</th></tr></thead>
+    <tbody>
+    {% for item in rx.items.all %}
+    <tr>
+      <td><span class="med-num">{{ forloop.counter }}</span></td>
+      <td>
+        <strong>{{ item.drug_name }}</strong>
+        {% if item.strength or item.form %}<br><span style="font-size:8.5pt;color:#6b8077;">{{ item.form }}{% if item.strength %} · {{ item.strength }}{% endif %}</span>{% endif %}
+      </td>
+      <td>{{ item.dose|default:"—" }}</td>
+      <td><span class="freq-badge">{{ item.frequency }}</span></td>
+      <td>{{ item.duration }} {{ item.get_duration_unit_display }}</td>
+      <td>{{ item.quantity|default:"—" }}</td>
+      <td style="font-size:8.5pt;color:#6b8077;">{{ item.instructions|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Advice -->
+  {% if rx.advice %}
+  <div class="advice-box">
+    <div class="lbl">📋 Advice / Instructions</div>
+    <div style="font-size:9.5pt;white-space:pre-line;">{{ rx.advice }}</div>
+  </div>
+  {% endif %}
+
+  <!-- Follow-up -->
+  {% if rx.follow_up_days %}
+  <div class="follow-up">Follow-up: <strong>After {{ rx.follow_up_days }} day{{ rx.follow_up_days|pluralize }}</strong> from today ({{ rx.date|date:"d M Y" }})</div>
+  {% endif %}
+
+  <!-- Footer -->
+  <div class="rx-footer" style="margin-top:20pt;">
+    <div style="font-size:8pt;color:#6b8077;">{{ cfg.invoice_footer_note }}</div>
+    <div class="signature-line">
+      {% if rx.doctor.signature %}{{ rx.doctor.signature }}<br>{% endif %}
+      Dr. {{ rx.doctor.first_name }} {{ rx.doctor.last_name }}<br>
+      {% if rx.doctor.specialization %}{{ rx.doctor.specialization }}{% endif %}
+    </div>
+  </div>
+  <div class="watermark">Generated by OPDPro · {{ cfg.clinic_name }}</div>
+</div>
+
+<!-- Print button -->
+<div class="no-print" style="text-align:center;padding:1rem;">
+  <button onclick="window.print()" style="background:#1a6b3c;color:#fff;border:none;border-radius:8px;padding:.6rem 2rem;font-size:.9rem;cursor:pointer;font-family:inherit;">🖨 Print Prescription</button>
+  <button onclick="window.close()" style="background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:.6rem 1.5rem;font-size:.9rem;cursor:pointer;margin-left:.5rem;font-family:inherit;">Close</button>
+</div>
+</body>
+</html>

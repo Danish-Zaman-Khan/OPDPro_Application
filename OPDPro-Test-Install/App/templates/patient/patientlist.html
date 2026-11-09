@@ -1,0 +1,69 @@
+{% extends "base/base.html" %}
+{% block title %}Patients · OPDPro{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+  <div>
+    <h1>Patients</h1>
+    <p>{{ patients|length }} patient{{ patients|length|pluralize }} registered</p>
+  </div>
+  <a href="{% url 'patients:patient_register' %}" class="btn btn-primary-opd"><i class="bi bi-person-plus me-1"></i>Register Patient</a>
+</div>
+
+<div class="opd-card">
+  <form method="get" class="mb-3">
+    <div class="input-group" style="max-width:360px;">
+      <span class="input-group-text" style="background:var(--surface-2); border-color:var(--border); border-radius:8px 0 0 8px;"><i class="bi bi-search text-muted"></i></span>
+      <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by name, phone, email…" style="border-radius:0 8px 8px 0;">
+    </div>
+  </form>
+
+  {% if patients %}
+  <div class="table-responsive">
+    <table class="opd-table">
+      <thead>
+        <tr><th>Patient</th><th>Gender</th><th>Date of Birth</th><th>Phone</th><th>Blood Type</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for patient in patients %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="rounded-circle d-flex align-items-center justify-content-center fw-600" style="width:32px;height:32px;background:var(--primary-soft);color:var(--primary);font-size:.72rem;flex-shrink:0;">
+                {{ patient.first_name|slice:":1" }}{{ patient.last_name|slice:":1" }}
+              </div>
+              <div>
+                <div style="font-weight:500; font-size:.875rem;">{{ patient.first_name }} {{ patient.last_name }}</div>
+                {% if patient.email %}<div style="font-size:.73rem; color:var(--text-muted);">{{ patient.email }}</div>{% endif %}
+              </div>
+            </div>
+          </td>
+          <td>{{ patient.get_gender_display }}</td>
+          <td>{{ patient.date_of_birth|date:"d M Y" }}</td>
+          <td>{{ patient.phone_number|default:"—" }}</td>
+          <td>
+            {% if patient.blood_type %}
+            <span style="background:#fee2e2; color:#991b1b; padding:.15rem .55rem; border-radius:20px; font-size:.73rem; font-weight:600;">{{ patient.blood_type }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            <div class="d-flex gap-1 justify-content-end">
+              <a href="{% url 'patients:patient_detail' patient.pk %}" class="btn btn-sm" style="padding:.25rem .5rem; background:var(--primary-soft); color:var(--primary); border-radius:6px;" title="View"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'patients:patient_update' patient.pk %}" class="btn btn-sm" style="padding:.25rem .5rem; background:#f0f9ff; color:#0369a1; border-radius:6px;" title="Edit"><i class="bi bi-pencil"></i></a>
+              <a href="{% url 'appointment:book_appointment' %}" class="btn btn-sm" style="padding:.25rem .5rem; background:#fff7ed; color:#c2410c; border-radius:6px;" title="Book Appointment"><i class="bi bi-calendar-plus"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-5" style="color:var(--text-muted);">
+    <i class="bi bi-people fs-1 d-block mb-3 opacity-40"></i>
+    {% if query %}<p>No patients found for "<strong>{{ query }}</strong>"</p>
+    {% else %}<p>No patients registered yet.</p>{% endif %}
+    <a href="{% url 'patients:patient_register' %}" class="btn btn-primary-opd mt-2">Register First Patient</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
